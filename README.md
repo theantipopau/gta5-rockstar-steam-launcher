@@ -19,61 +19,68 @@
 
 ---
 
-## Why this exists
-
-Rockstar Games Launcher's UI is built with Chromium (CEF). Its "PLAY" button is a
-custom web-rendered element, not a native Windows control, so it doesn't expose
-itself to Windows accessibility APIs — and Rockstar has no command-line flag or public
-API to launch a specific title directly. `GTA5_Enhanced.exe` also refuses to run
-standalone; Rockstar's DRM requires it to be launched *through* the Launcher, which
-injects session/auth data at runtime.
-
-So there's no "clean" way to automate this. This script does the next best thing:
-
-1. Launches Rockstar Games Launcher directly.
-2. Finds its window by title text (not `Process.MainWindowHandle`, which is
-   unreliable for CEF apps — the visible window is often owned by a different
-   internal process than the one PowerShell sees).
-3. Tries UI Automation first (cheap, harmless, occasionally works on future
-   Launcher versions).
-4. Falls back to an image search for the "PLAY" button's actual pixels — restricted
-   **only** to the live Launcher window's own screen rectangle, never the whole
-   desktop — and clicks wherever it's actually found.
-5. Waits for `GTA5_Enhanced.exe` to appear, brings it to the foreground, and
-   minimizes Steam's Big Picture window if it's open (Big Picture won't auto-hide for
-   a game it isn't directly tracking — this approach deliberately keeps GTA V outside
-   Steam's hooked process tree, which is also what avoids a **"Steam client failed to
-   initialize, please reinstall the game"** crash some setups hit otherwise).
-6. Waits for the game to exit so Steam's "Playing" status stays accurate for the
-   whole session, then cleans up leftover helper processes.
-
-Works no matter which storefront your copy came from — Epic, Rockstar directly, or
-Steam — since the Launcher app and `GTA5_Enhanced.exe` process name are identical
-either way. (Already own it on Steam? You don't need any of this — just launch it
-normally.)
+No coding or GitHub experience needed — just follow the steps below in order.
+Everything here is free and uses only things already built into Windows and Steam.
 
 ## Setup
 
-1. Clone/download this repo somewhere permanent, e.g. `D:\GTAV-AutoLaunch\`.
-2. **Capture your own Play button image** — exact pixels shift slightly with Windows
-   scaling/theme/resolution, so the included `playbutton.png` may not match yours:
-   - Open Rockstar Games Launcher manually.
-   - Press `Win+Shift+S`, tightly crop just the **PLAY** button (a little surrounding
-     background is fine).
-   - Save it over `playbutton.png` in this folder.
-3. In Steam: **Add a Non-Steam Game** → browse to:
+### 1. Download this project
+
+- Click the green **Code** button near the top of this page → **Download ZIP**.
+  *(If you'd rather grab a fixed, tested version instead of the latest code, use the
+  [Releases page](../../releases) on the right side of this repo instead and download
+  the zip attached to the newest release.)*
+- Once downloaded, right-click the zip → **Extract All...** and pick a permanent
+  location you won't move or delete later, e.g. `D:\GTAV-AutoLaunch\`. (Anywhere
+  works — just remember the folder, you'll need its path in step 3.)
+- **If Windows shows a blue "Windows protected your PC" SmartScreen warning** when
+  opening the zip or the folder: this is normal for any script downloaded from the
+  internet that isn't digitally signed by a paid certificate (most free/hobby GitHub
+  tools show this). Click **More info** → **Run anyway**, or just ignore it — nothing
+  in this folder needs to be "run" directly; Steam will run the script for you later.
+
+### 2. Capture your own "PLAY" button image
+
+The included `playbutton.png` was captured on one specific Windows setup — button
+pixels can shift slightly with different display scaling, themes, or resolutions, so
+it's best to replace it with your own:
+
+1. Open Rockstar Games Launcher normally (double-click it like you always would).
+2. Once it's fully loaded and showing GTA V's PLAY button, press `Win+Shift+S` on
+   your keyboard (Windows' built-in snipping tool — a small toolbar appears at the
+   top of your screen).
+3. Click and drag a tight box around just the **PLAY** button (a little bit of
+   background around it is fine, but avoid capturing anything else like the
+   promotional tiles next to it).
+4. This copies the snip to your clipboard. Open **Paint** (search for it in the
+   Start menu), press `Ctrl+V` to paste it in, then **File → Save As** → save it as
+   `playbutton.png` directly into the folder from step 1, replacing the existing file
+   (choose "Yes" to overwrite when asked).
+
+### 3. Add it to Steam
+
+1. Open Steam, go to the **Library** tab.
+2. Bottom-left corner, click **+ Add a Game** → **Add a Non-Steam Game...**
+   (on some Steam versions this is under the **Games** menu at the top instead).
+3. In the file browser that opens, paste this into the filename box and press Enter:
    ```
    C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
    ```
-4. Right-click the new shortcut → **Properties**, then set:
-   - **Launch Options**:
-     ```
-     -ExecutionPolicy Bypass -WindowStyle Hidden -File "D:\GTAV-AutoLaunch\LaunchGTAV.ps1"
-     ```
-     (adjust the path to wherever you put this folder)
-   - **Start In**: the same folder
-5. Rename the shortcut to whatever you like (e.g. "Grand Theft Auto V").
-6. Launch it from Steam, Big Picture, or Steam Link — that's it.
+4. Tick the checkbox next to it in the list, then click **Add Selected Programs**.
+5. Find the new "powershell" entry in your Library, right-click it → **Properties**.
+6. In the **General** tab of the Properties window, find the **LAUNCH OPTIONS** box
+   near the bottom and paste this in — **but first edit the folder path** to match
+   wherever you actually extracted this project in step 1:
+   ```
+   -ExecutionPolicy Bypass -WindowStyle Hidden -File "D:\GTAV-AutoLaunch\LaunchGTAV.ps1"
+   ```
+7. Also find the **Target** and **Start In** fields near the top of the same tab —
+   set **Start In** to your project folder path as well (e.g. `D:\GTAV-AutoLaunch\`,
+   no quotes needed there).
+8. At the very top of the Properties window, rename the shortcut from "powershell"
+   to something sensible like `Grand Theft Auto V`.
+9. Close the Properties window. You're done — launch it from your Steam Library, Big
+   Picture Mode, or Steam Link like any other game.
 
 ## Make it look like a real Steam game
 
@@ -108,6 +115,44 @@ straight from Steam's own CDN (the game is also sold on Steam under app id
    `GTA5_Enhanced.exe` — Steam will pull the real embedded icon rather than needing an
    image file.
 6. Back out to your Library view — the tile now looks like any other Steam game.
+
+## How it works (technical details)
+
+<details>
+<summary>Click to expand — not needed to use the tool, just for the curious</summary>
+
+Rockstar Games Launcher's UI is built with Chromium (CEF). Its "PLAY" button is a
+custom web-rendered element, not a native Windows control, so it doesn't expose
+itself to Windows accessibility APIs — and Rockstar has no command-line flag or public
+API to launch a specific title directly. `GTA5_Enhanced.exe` also refuses to run
+standalone; Rockstar's DRM requires it to be launched *through* the Launcher, which
+injects session/auth data at runtime.
+
+So there's no "clean" way to automate this. The script does the next best thing:
+
+1. Launches Rockstar Games Launcher directly.
+2. Finds its window by title text (not `Process.MainWindowHandle`, which is
+   unreliable for CEF apps — the visible window is often owned by a different
+   internal process than the one PowerShell sees).
+3. Tries UI Automation first (cheap, harmless, occasionally works on future
+   Launcher versions).
+4. Falls back to an image search for the "PLAY" button's actual pixels — restricted
+   **only** to the live Launcher window's own screen rectangle, never the whole
+   desktop — and clicks wherever it's actually found.
+5. Waits for `GTA5_Enhanced.exe` to appear, brings it to the foreground, and
+   minimizes Steam's Big Picture window if it's open (Big Picture won't auto-hide for
+   a game it isn't directly tracking — this approach deliberately keeps GTA V outside
+   Steam's hooked process tree, which is also what avoids a **"Steam client failed to
+   initialize, please reinstall the game"** crash some setups hit otherwise).
+6. Waits for the game to exit so Steam's "Playing" status stays accurate for the
+   whole session, then cleans up leftover helper processes.
+
+Works no matter which storefront your copy came from — Epic, Rockstar directly, or
+Steam — since the Launcher app and `GTA5_Enhanced.exe` process name are identical
+either way. (Already own it on Steam? You don't need any of this — just launch it
+normally.)
+
+</details>
 
 ## Troubleshooting
 
