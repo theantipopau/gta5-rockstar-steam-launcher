@@ -1,3 +1,9 @@
+<#
+    GTA V (Rockstar Launcher) Steam Non-Steam-Game Launcher
+    github.com/theantipopau/gta5-rockstar-steam-launcher
+    Created by Matt Hurley - matthurley.dev
+#>
+
 $launcherExe = "C:\Program Files\Rockstar Games\Launcher\Launcher.exe"
 $gameProcName = "GTA5_Enhanced"
 $scriptDir = $PSScriptRoot
@@ -8,7 +14,7 @@ function Log($msg) {
     "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss.fff')  $msg" | Out-File -FilePath $logFile -Append -Encoding utf8
 }
 
-Log "=== Script started ==="
+Log "=== Script started (gta5-rockstar-steam-launcher by Matt Hurley - matthurley.dev) ==="
 
 Add-Type @"
 using System;

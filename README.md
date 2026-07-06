@@ -8,6 +8,7 @@
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
   <img alt="PowerShell" src="https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?logo=powershell&logoColor=white">
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-0078D6?logo=windows&logoColor=white">
+  <a href="https://matthurley.dev"><img alt="Created by Matt Hurley" src="https://img.shields.io/badge/created%20by-Matt%20Hurley-informational"></a>
 </p>
 
 <p align="center">
@@ -186,6 +187,10 @@ that's the single most common thing that needs adjusting per-machine.
 
 Issues and PRs welcome — especially if you've adapted this for other Rockstar
 titles (RDR2 etc.) or found a more reliable way to locate the Play button.
+
+## Author
+
+Created by [Matt Hurley](https://matthurley.dev).
 
 ## License
 
