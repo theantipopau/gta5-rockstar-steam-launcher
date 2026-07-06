@@ -62,6 +62,24 @@ you don't need this at all — just launch GTA V normally.)
 5. Rename the shortcut to whatever you like (e.g. "Grand Theft Auto V").
 6. Launch it from Steam / Big Picture / Steam Link.
 
+## Steam artwork (optional)
+
+The `steam-artwork/` folder has the official GTA V Enhanced store assets (pulled
+directly from Steam's own CDN, since the game is also sold on Steam under app id
+`3240220`), so your shortcut doesn't have to look like a blank placeholder tile:
+
+| File | Use for | Size |
+|---|---|---|
+| `grid_portrait.jpg` | Grid (Portrait) | 600x900 |
+| `header.jpg` | Grid (Landscape) | 460x215 |
+| `hero.jpg` | Hero | 1920x620 |
+| `logo.png` | Logo | 640x360 |
+
+To apply: right-click the shortcut in your Steam Library → **Manage** → **Set custom
+artwork**, and drop in the matching file for each slot. For the **Icon**, don't use an
+image from here — instead set it directly to your `GTA5_Enhanced.exe` path so Steam
+extracts the real embedded icon.
+
 ## Troubleshooting
 
 The script writes a timestamped log to `launch_log.txt` in the same folder on every
